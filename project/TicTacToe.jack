@@ -1,0 +1,159 @@
+class TicTacToe {
+
+    field Board board;
+    field Array game_state;
+    field int current_player; // 1 for X, 2 for O.
+    field boolean game_over;   
+
+    constructor TicTacToe new() {
+        let board = Board.new();
+        let game_state = Array.new(9);
+        do resetGame();
+        return this;
+    }
+
+    method void dispose() {
+        do board.dispose();
+        do game_state.dispose();
+        do Memory.deAlloc(this);
+        return;
+    }
+
+    method void resetGame() {
+        var int i;
+        let i = 0;
+        while (i < 9) {
+            let game_state[i] = 0;
+            let i = i + 1;
+        }
+        let current_player = 1;
+        let game_over = false;
+        do board.drawGrid(); 
+        do printStatus("Player X's turn.");
+        return;
+    }
+
+    method void run() {
+        var int key;
+        var int location;
+
+        while (true) {
+            while (~game_over) {
+                let key = 0;
+                while (key = 0) {
+                    let key = Keyboard.keyPressed();
+                }
+
+                if (key = 81) {
+                    return;
+                }
+                if (key = 82) {
+                    do resetGame();
+                }
+
+                if ((key > 48) & (key < 58)) {
+                    let location = key - 49; 
+                    if (game_state[location] = 0) {
+                        do makeMove(location);
+                        if (~game_over) {
+                            do switchPlayer();
+                        }
+                    } 
+                }
+                 do Sys.wait(100); 
+            }
+            
+            while(game_over) {
+                 let key = 0;
+                 while (key = 0) {
+                    let key = Keyboard.keyPressed();
+                }
+                if (key = 81) { 
+                    return;
+                }
+                if (key = 82) { 
+                    do resetGame();
+                }
+                 do Sys.wait(100);
+            }
+        }
+        return;
+    }
+    
+    method void switchPlayer() {
+        if (current_player = 1) {
+            let current_player = 2;
+            do printStatus("Player O's turn.");
+        } else {
+            let current_player = 1;
+            do printStatus("Player X's turn.");
+        }
+        return;
+    }
+
+    method void makeMove(int location) {
+        var int row, col;
+        let game_state[location] = current_player;
+
+        let row = location / 3;
+        let col = location - (row * 3);
+
+        if (current_player = 1) {
+            do board.drawX(row, col);
+        } else {
+            do board.drawO(row, col);
+        }
+
+        if (checkWin()) {
+            let game_over = true;
+            if (current_player = 1) {
+                do printStatus("Player X wins! (r=reset, q=quit)");
+            } else {
+                do printStatus("Player O wins! (r=reset, q=quit)");
+            }
+        } else {
+            if (checkDraw()) {
+                let game_over = true;
+                do printStatus("It's a draw! (r=reset, q=quit)");
+            }
+        }
+        return;
+    }
+
+    method boolean checkWin() {
+        if ( (is_match(0,1,2)) | (is_match(3,4,5)) | (is_match(6,7,8)) ) { return true; }
+        if ( (is_match(0,3,6)) | (is_match(1,4,7)) | (is_match(2,5,8)) ) { return true; }
+        if ( (is_match(0,4,8)) | (is_match(2,4,6)) ) { return true; }
+        return false;
+    }
+
+    method boolean is_match(int i, int j, int k) {
+        return ( (game_state[i] = current_player) &
+                 (game_state[j] = current_player) &
+                 (game_state[k] = current_player) );
+    }
+
+    method boolean checkDraw() {
+        var int i;
+        var boolean is_draw;
+        let i = 0;
+        let is_draw = true;
+        while (i < 9) {
+            if (game_state[i] = 0) {
+                let is_draw = false;
+            }
+            let i = i + 1;
+        }
+        return is_draw;
+    }
+
+    method void printStatus(String message) {
+        do Screen.setColor(false);
+        do Screen.drawRectangle(0, 240, 511, 250);
+        do Screen.setColor(true);
+        do Output.moveCursor(22, 2);
+        do Output.printString(message);
+        return;
+    }
+}
+

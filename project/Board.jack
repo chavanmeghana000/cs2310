@@ -1,0 +1,70 @@
+class Board {
+
+    field int start_x;
+    field int start_y;
+    field int cell_size;
+
+    constructor Board new() {
+        let cell_size = 60;
+        let start_x = (512 - (3 * cell_size)) / 2;
+        let start_y = (256 - (3 * cell_size)) / 2;
+        return this;
+    }
+
+    method void dispose() {
+        do Memory.deAlloc(this);
+        return;
+    }
+
+    method void drawGrid() {
+        var int board_end_x, board_end_y;
+
+        do Screen.clearScreen();
+        do Output.moveCursor(0,0);
+        do Output.printString("Tic Tac Toe");
+        do Output.moveCursor(1,0);
+        do Output.printString("Use keys 1-9 to play. 'r' to reset, 'q' to quit.");
+
+        let board_end_x = start_x + (3 * cell_size);
+        let board_end_y = start_y + (3 * cell_size);
+
+        // Draw vertical lines.
+        do Screen.drawLine(start_x + cell_size, start_y, start_x + cell_size, board_end_y);
+        do Screen.drawLine(start_x + (2 * cell_size), start_y, start_x + (2 * cell_size), board_end_y);
+
+        // Draw horizontal lines.
+        do Screen.drawLine(start_x, start_y + cell_size, board_end_x, start_y + cell_size);
+        do Screen.drawLine(start_x, start_y + (2 * cell_size), board_end_x, start_y + (2 * cell_size));
+
+        return;
+    }
+
+    // Draws an 'X' symbol in the specified cell.
+    method void drawX(int row, int col) {
+        var int x, y, offset;
+        let offset = 10; // Margin inside the cell.
+        let x = start_x + (col * cell_size);
+        let y = start_y + (row * cell_size);
+
+        // Draw the two lines that form the X.
+        do Screen.drawLine(x + offset, y + offset, x + cell_size - offset, y + cell_size - offset);
+        do Screen.drawLine(x + cell_size - offset, y + offset, x + offset, y + cell_size - offset);
+        return;
+    }
+
+    // Draws an 'O' symbol in the specified cell.
+    method void drawO(int row, int col) {
+        var int x, y, radius;
+        let radius = (cell_size / 2) - 10;
+        // Calculate the center of the cell for the circle.
+        let x = start_x + (col * cell_size) + (cell_size / 2);
+        let y = start_y + (row * cell_size) + (cell_size / 2);
+
+        do Screen.drawCircle(x, y, radius);
+        do Screen.setColor(false);
+        do Screen.drawCircle(x,y,radius-1);
+        do Screen.setColor(true);
+
+        return;
+    }
+}
